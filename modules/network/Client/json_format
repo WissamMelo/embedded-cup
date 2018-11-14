@@ -1,0 +1,17 @@
+{
+	id_copo: 1,
+	partition: 1,
+	moment: "2018-12-30 hh:mm",
+	event: "tomou|não tomou|cadastrou|removeu",
+	alarm_info: {
+		start: {
+			hour: 10,	
+			minute: 10,
+		}
+		period: {
+			hour: 10,
+			minute: 10,
+		},
+		duration: 5, ---> dias
+	},
+}
