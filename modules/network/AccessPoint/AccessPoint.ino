@@ -76,13 +76,13 @@ namespace smc {
         }
 
         void end_soft_ap() {
-            if(WiFi.softAPdisconnect(true)) {
-                Serial.println("Wifi soft AP disconnected successfully.");
-            }
-            else {
-                Serial.println("Wifi soft AP could not disconnect.");
-            }
+            WiFi.softAPdisconnect(false);
+            Serial.println("Disconnecting Wifi soft AP...");
+            delay(2000);
+            Serial.println("Wifi soft AP disconnected.");
             server.end();
+            Serial.println("Ending AP server...");
+            delay(2000);
             Serial.println("AP server ended.");
         }
 
@@ -110,15 +110,20 @@ namespace smc {
             Serial.println("Handling header...");
             Serial.println(header);
 
-            const int SSID_SLENGTH = 6;
             int ssid_index = std::max(header.indexOf("?SSID"), header.indexOf("&SSID"));
+            int pass_index = std::max(header.indexOf("?password"), header.indexOf("&password"));
+
+            if(ssid_index == -1 || pass_index == -1) {
+                return std::map<String, String>();
+            }
+
+            const int SSID_SLENGTH = 6;
             String ssid = "";
             for(int i = ssid_index + SSID_SLENGTH; header[i] != '&' && header[i] != ' '; i++) {
                 ssid += header[i];
             }
 
             const int PASS_SLENGTH = 10;
-            int pass_index = std::max(header.indexOf("?password"), header.indexOf("&password"));
             String password = "";
             for(int i = pass_index + PASS_SLENGTH; header[i] != '&' && header[i] != ' '; i++) {
                 password += header[i];
@@ -137,18 +142,28 @@ smc::AccessPoint ap;
 
 void handle_new_credentials(std::map<String, String> credentials) {
     Serial.println("Handling new credentials...");
-    ap.end();
+    if(WiFi.status() == WL_CONNECTED) {
+        Serial.println("Already connected to an Wifi network...");
+        return;
+    }
+
     Serial.println("ssid: " + credentials["ssid"]);
     Serial.println("password: " + credentials["password"]);
 
     // try to connect with new credentials on wifi here
     // in case of success, store credentials in wifi_credentials.txt file.
-    WiFi.begin(credentials["ssid"], credentials["password"]);
+    String ssid = credentials["ssid"];
+    String password = credentials["password"];
+    WiFi.begin(ssid.c_str(), password.c_str());
+
+    const int N_TRIES = 20;
     int tries = 0;
-    while(WiFi.status() != WL_CONNECTED && tries < 10) {
+    while(WiFi.status() != WL_CONNECTED && tries < N_TRIES) {
         delay(1000);
         tries++;
-        Serial.println("Connecting to wifi with new credentials...");
+        Serial.print("Try #");
+        Serial.print(tries);
+        Serial.println(": connecting to wifi with new credentials...");
     }
 
     if(WiFi.status() == WL_CONNECTED) {
@@ -157,11 +172,15 @@ void handle_new_credentials(std::map<String, String> credentials) {
     }
     else {
         Serial.println("Could not connect to wifi with new credentials.");
+        Serial.println("Starting AP again...");
     }
 }
 
 void setup() {
     Serial.begin(115200);
+    while(!Serial) {
+        delay(0);
+    }
     ap.begin();
 }
 
@@ -170,4 +189,5 @@ void loop() {
     if(!credentials.empty()) {
         handle_new_credentials(credentials);
     }
+    delay(100);
 }
