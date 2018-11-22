@@ -57,7 +57,7 @@ namespace smc {
 				sprintf(
 						buffer,
 						"{"
-						"id_copo: %u,"
+						"id_cup: %u,"
 						"partiton: %u,"
 						"moment: %s,"
 						"event: %s,"
