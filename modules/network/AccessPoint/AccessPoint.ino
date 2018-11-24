@@ -18,7 +18,7 @@ namespace smc {
             end_soft_ap();
         }
 
-        std::map<String, String> handle_request() {
+        void handle_request() {
             WiFiClient client = server.available();
             std::map<String, String> credentials;
             if(client) {
@@ -54,7 +54,9 @@ namespace smc {
                 Serial.println("[SMC-LOG] Client disconnected.");
                 Serial.println("");
             }
-            return credentials;
+            if(!credentials.empty()) {
+                handle_new_credentials(credentials);
+            }
         }
 
     private:
@@ -135,43 +137,43 @@ namespace smc {
 
             return credentials;
         }
+
+        void handle_new_credentials(std::map<String, String> credentials) {
+            Serial.println("[SMC-LOG] Handling new credentials...");
+            if(WiFi.status() == WL_CONNECTED) {
+                Serial.println("[SMC-LOG] Already connected to an Wifi network...");
+                return;
+            }
+
+            Serial.println("[SMC-LOG] ssid: " + credentials["ssid"]);
+            Serial.println("[SMC-LOG] password: " + credentials["password"]);
+
+            // try to connect with new credentials on wifi here
+            // in case of success, store credentials in wifi_credentials.txt file.
+            String ssid = credentials["ssid"];
+            String password = credentials["password"];
+            WiFi.begin(ssid.c_str(), password.c_str());
+
+            const int N_TRIES = 20;
+            int tries = 0;
+            while(WiFi.status() != WL_CONNECTED && tries < N_TRIES) {
+                delay(1000);
+                tries++;
+                Serial.print("[SMC-LOG] Try #");
+                Serial.print(tries);
+                Serial.println(": connecting to wifi with new credentials...");
+            }
+
+            if(WiFi.status() == WL_CONNECTED) {
+                Serial.println("[SMC-LOG] Connected successfully to wifi with new credentials.");
+                // record credentials in file here.
+            }
+            else {
+                Serial.println("[SMC-LOG] Could not connect to wifi with new credentials.");
+                Serial.println("[SMC-LOG] Starting AP again...");
+            }
+        }
     };
-}
-
-void handle_new_credentials(std::map<String, String> credentials) {
-    Serial.println("[SMC-LOG] Handling new credentials...");
-    if(WiFi.status() == WL_CONNECTED) {
-        Serial.println("[SMC-LOG] Already connected to an Wifi network...");
-        return;
-    }
-
-    Serial.println("[SMC-LOG] ssid: " + credentials["ssid"]);
-    Serial.println("[SMC-LOG] password: " + credentials["password"]);
-
-    // try to connect with new credentials on wifi here
-    // in case of success, store credentials in wifi_credentials.txt file.
-    String ssid = credentials["ssid"];
-    String password = credentials["password"];
-    WiFi.begin(ssid.c_str(), password.c_str());
-
-    const int N_TRIES = 20;
-    int tries = 0;
-    while(WiFi.status() != WL_CONNECTED && tries < N_TRIES) {
-        delay(1000);
-        tries++;
-        Serial.print("[SMC-LOG] Try #");
-        Serial.print(tries);
-        Serial.println(": connecting to wifi with new credentials...");
-    }
-
-    if(WiFi.status() == WL_CONNECTED) {
-        Serial.println("[SMC-LOG] Connected successfully to wifi with new credentials.");
-        // record credentials in file here.
-    }
-    else {
-        Serial.println("[SMC-LOG] Could not connect to wifi with new credentials.");
-        Serial.println("[SMC-LOG] Starting AP again...");
-    }
 }
 
 smc::AccessPoint ap;
@@ -181,13 +183,10 @@ void setup() {
     while(!Serial) {
         delay(0);
     }
-    ap.begin();
+    ap.begin(); // importante dar o begin do access point no setup antes de qualquer ação com ele 
 }
 
 void loop() {
-    std::map<String, String> credentials = ap.handle_request();
-    if(!credentials.empty()) {
-        handle_new_credentials(credentials);
-    }
+    ap.handle_request(); // deixar isso aqui rodando no loop sempre
     delay(0);
 }
