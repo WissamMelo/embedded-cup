@@ -4,22 +4,20 @@
 #include <HTTPClient.h>
 #include "PayloadEncoder.h"
 
-const char * ssid = "SSID";
-const char * password = "password";
-
 namespace smc {
+    const String dest_host = "https://smartmedicinecup.herokuapp.com/api/info/";
+
     class Client {
         public:
             Client(){
-                destHost = "http://host:port/create/";
-
-                http.begin(destHost);
+                http.begin(dest_host);
                 http.addHeader("Content-Type", "application/json");
             }
             ~Client(){
                 http.end();
             }
-            int makeRequest(PayloadEncoder payload){
+
+            int sendRequest(PayloadEncoder payload, String url=dest_host){
                 String payloadStr = payload.encode();
                 int httpResponseCode = http.POST(payloadStr);
 
@@ -36,8 +34,6 @@ namespace smc {
             }
 
         private:
-            String destHost;
-
             HTTPClient http;
     };
 }

@@ -2,8 +2,12 @@
 #include "PayloadEncoder.h"
 #include "Client.h"
 
-void setup() {
+char *ssid = "AndroidAP";
+char *password = "cgyi6332";
+
+	void setup() {
     Serial.begin(115200);
+	while(!Serial) delay(0);
     delay(4000);   //Delay needed before calling the WiFi.begin
 
     WiFi.begin(ssid, password);
@@ -13,6 +17,7 @@ void setup() {
         Serial.println("Connecting to WiFi..");
     }
     Serial.println("Connected to the WiFi network");
+	Serial.println(WiFi.localIP());
 }
 
 void loop() {
@@ -28,11 +33,11 @@ void loop() {
     alarmInfo.start.minute = 13;
     alarmInfo.period.hour = 11;
     alarmInfo.period.minute = 12;
-
+	alarmInfo.duration = 15;
 
     smc::Client client;
     smc::PayloadEncoder payload(1, 2, moment, "registered", alarmInfo);
-    client.makeRequest(payload);
+    client.sendRequest(payload);
 
     delay(20*1000);
 }

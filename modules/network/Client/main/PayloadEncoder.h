@@ -29,15 +29,14 @@ namespace smc {
             String event;
             AlarmInfo alarmInfo;
 
-        public:
             PayloadEncoder(){}
 
             PayloadEncoder(unsigned int idCup, unsigned int partition, Moment moment, String event, AlarmInfo alarmInfo){
-                idCup = idCup;
-                partition = partition;
-                moment = moment;
-                event = event;
-                alarmInfo = alarmInfo;
+                this->idCup = idCup;
+                this->partition = partition;
+                this->moment = moment;
+                this->event = event;
+                this->alarmInfo = alarmInfo;
             }
 
             ~PayloadEncoder(){}
@@ -53,17 +52,17 @@ namespace smc {
 
                     String momentStr = encodeMoment(moment);
 
-                    char buffer[300];
+                    char buffer[1000];
                     sprintf(
                             buffer,
                             "{"
-                            "id_cup: %u,"
-                            "partiton: %u,"
-                            "moment: %s,"
-                            "event: %s,"
-                            "alarm_info: %s"
+                            "\"id_cup\": %u, "
+                            "\"partition\": %u, "
+                            "\"moment\": \"%s\", "
+                            "\"event\": \"%s\", "
+                            "\"alarm_info\": %s"
                             "}",
-                            idCup, partition, momentStr, event, alarmInfoStr
+                            idCup, partition, momentStr.c_str(), event.c_str(), alarmInfoStr.c_str()
                            );
                     payload = String(buffer);
                 } else {
@@ -81,8 +80,8 @@ namespace smc {
                 String alarmInfoStr = "";
                 if(alarmInfo.start.hour <= 23 and alarmInfo.start.minute <= 59 and
                         alarmInfo.period.hour <= 23 and alarmInfo.period.minute <= 59){
-                    char buffer[100];
-                    sprintf(buffer, "{start: %s, period: %s, duration: %u}", startStrAux, periodStrAux, alarmInfo.duration);
+                    char buffer[1000];
+                    sprintf(buffer, "{\"start\": %s, \"period\": %s, \"duration\": %u}", startStrAux.c_str(), periodStrAux.c_str(), alarmInfo.duration);
                     alarmInfoStr = String(buffer);
                 } else {
                     Serial.println("[ERROR] Invalid alarmInfo attribute value, wrong range.");	
@@ -96,7 +95,7 @@ namespace smc {
 
                 if(moment.hour <= 23 and moment.minute <= 59 and moment.day <= 31 and 
                         moment.month <= 12 and moment.year >= 2018 and moment.year <= 2050){
-                    char buffer[17];
+                    char buffer[1000];
                     sprintf(buffer, "%u-%u-%u %u:%u", moment.year, moment.month, moment.day, moment.hour, moment.minute);	
                     momentStr = String(buffer);
                 } else {
@@ -110,8 +109,8 @@ namespace smc {
                 String hourMinuteStr = "";
 
                 if(hourTime.hour <= 23 and hourTime.minute <= 59) {
-                    char buffer[10];
-                    sprintf(buffer, "{hour: %u, minute: %u}", hourTime.hour, hourTime.minute);
+                    char buffer[1000];
+                    sprintf(buffer, "{\"hour\": %u, \"minute\": %u}", hourTime.hour, hourTime.minute);
                     hourMinuteStr = String(buffer);
                 } else {
                     Serial.println("[ERROR] Invalid hourTime attribute value for encoding hourTime.");	
