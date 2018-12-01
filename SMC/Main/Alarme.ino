@@ -52,7 +52,6 @@ void Gerenciador_LED(void) {
     }
   }
 
-  if (digitalRead(B_Copo) == HIGH) {
     for (int i = 0; i <= 3; i++) {
       if (Ac_LED[i]) {
         digitalWrite(Leds[i], HIGH);
@@ -60,15 +59,42 @@ void Gerenciador_LED(void) {
         digitalWrite(Leds[i], LOW);
       }
     }
-    if (digitalRead(B_REM_OK) == LOW) {
-      for (int i = 0; i <= 3; i++) {
+    if (digitalRead(B_REM_OK) == HIGH) {
+        for (int i = 0; i <= 3; i++) {
         Ac_LED[i] = 0;
         digitalWrite(Leds[i], LOW);
       }
+        digitalWrite(pinBuzzer, LOW);
+        flag_Des = 0; 
     }
-  } else {
-    for (int i = 0; i <= 3; i++) {
-      digitalWrite(Leds[i], LOW);
+   
+}
+void Descanso(void){
+    DateTime now = rtc.now();
+   
+    if ((C_Leds[0]==1)||(C_Leds[1]==1)||(C_Leds[2]==1)||(C_Leds[3]==1)) {
+        digitalWrite(pinBuzzer, HIGH);
+        T_Alar= now.minute()+1;
+        if(T_Alar == 60){
+            T_Alar= 0;
+        }
     }
-  }
+    if (T_Alar== now.minute()){
+        digitalWrite(pinBuzzer, LOW);
+        flag_Des = 1;
+        T_Alar= -1;
+      }
+      
+    if (flag_Des == 1){
+      for (int i = 0; i <= 3; i++) {
+            LED_Des[i] = Ac_LED[i]; 
+      }  
+    }
+    if ((digitalRead(Leds[0])||digitalRead(Leds[1])||digitalRead(Leds[2])||digitalRead(Leds[3])) && digitalRead(in1)) {
+
+        flag_Des = 1;
+        T_Alar= -1;
+        digitalWrite(pinBuzzer, LOW);
+    }
+             
 }

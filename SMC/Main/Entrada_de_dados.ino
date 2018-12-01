@@ -3,8 +3,8 @@
 void deletar_1(){
     int botao = digitalRead(in1);
   if(botao == 1 && lastbotao == 0){
-    alarmes[0].horario_inicial = 0;
-    alarmes[0].minutos_inicial = 0;
+    alarmes[0].horario_inicial = -1;
+    alarmes[0].minutos_inicial = -1;
     alarmes[0].freq = 0;
       Serial.println("deletado alarme1");
       Serial.println("Dados = ");
@@ -19,8 +19,8 @@ void deletar_2(){
     int botao = digitalRead(in1);
     int botao2 = digitalRead(in2);
   if(botao == 1 && lastbotao == 0){
-    alarmes[1].horario_inicial = 0;
-    alarmes[1].minutos_inicial = 0;
+    alarmes[1].horario_inicial = -1;
+    alarmes[1].minutos_inicial = -1;
     alarmes[1].freq = 0;
       Serial.println("deletado alarme2");
   }
@@ -30,8 +30,8 @@ void deletar_3(){
     int botao = digitalRead(in1);
     int botao2 = digitalRead(in2);
   if(botao == 1 && lastbotao == 0){
-    alarmes[2].horario_inicial = 0;
-    alarmes[2].minutos_inicial = 0;
+    alarmes[2].horario_inicial = -1;
+    alarmes[2].minutos_inicial = -1;
     alarmes[2].freq = 0;
       Serial.println("deletado alarme3");
   }
@@ -42,8 +42,8 @@ void deletar_4(){
     int botao = digitalRead(in1);
     int botao2 = digitalRead(in2);
   if(botao == 1 && lastbotao == 0){
-    alarmes[3].horario_inicial = 0;
-    alarmes[3].minutos_inicial = 0;
+    alarmes[3].horario_inicial = -1;
+    alarmes[3].minutos_inicial = -1;
     alarmes[3].freq = 0;
    Serial.println("deletado alarme4");
   }
